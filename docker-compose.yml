@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:13
+    container_name: openproject_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: clave_segura
+      POSTGRES_DB: openproject_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
   openproject:
     image: openproject/openproject:16
     container_name: openproject
@@ -11,7 +22,13 @@ services:
       OPENPROJECT_HOST__NAME: localhost:8080
       OPENPROJECT_HTTPS: "false"
       OPENPROJECT_DEFAULT__LANGUAGE: es
+      OPENPROJECT_DATABASE__URL: postgres://postgres:clave_segura@db:5432/openproject_db
     volumes:
-      - ./pgdata:/var/openproject/pgdata
-      - ./assets:/var/openproject/assets
+      - assets:/var/openproject/assets
+    depends_on:
+      - db
     restart: always
+
+volumes:
+  pgdata:
+  assets:
